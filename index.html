@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Catálogo de Prompts v2 </title>
+<title>Catálogo de Prompts</title>
 <style>
   :root {
     --primary: #0F6E56;
@@ -287,7 +287,7 @@
 
 <header>
   <div>
-    <h1>📚 Catálogo de Prompts - v2</h1>
+    <h1>📚 Catálogo de Prompts</h1>
     <p>Repositório compartilhado do time — copie, use e contribua</p>
   </div>
   <button class="btn-primary" onclick="openModal()">
@@ -391,36 +391,41 @@ function showStatus(msg, type) {
 }
 
 function parseCSV(text) {
-  const lines = text.trim().split("\n");
-  if (lines.length < 2) return [];
-  return lines.slice(1).map((line, idx) => {
-    const cols = splitCSVLine(line);
-    return {
-      id: idx,
-      title: (cols[0] || "").trim(),
-      category: (cols[1] || "").trim(),
-      description: (cols[2] || "").trim(),
-      prompt: (cols[3] || "").trim(),
-      author: (cols[4] || "").trim(),
-      date: (cols[5] || "").trim()
-    };
-  }).filter(p => p.title);
+  const rows = splitCSVRows(text.trim());
+  if (rows.length < 2) return [];
+  return rows.slice(1).map((cols, idx) => ({
+    id: idx,
+    title:       (cols[0] || "").trim(),
+    category:    (cols[1] || "").trim(),
+    description: (cols[2] || "").trim(),
+    prompt:      (cols[3] || "").trim(),
+    author:      (cols[4] || "").trim(),
+    date:        (cols[5] || "").trim()
+  })).filter(p => p.title);
 }
 
-function splitCSVLine(line) {
-  const result = [];
-  let cur = "", inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
+function splitCSVRows(text) {
+  const rows = [];
+  let cols = [], cur = "", inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    const next = text[i + 1];
     if (c === '"') {
-      if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+      if (inQ && next === '"') { cur += '"'; i++; }
       else inQ = !inQ;
     } else if (c === ',' && !inQ) {
-      result.push(cur); cur = "";
-    } else cur += c;
+      cols.push(cur); cur = "";
+    } else if ((c === '\n' || (c === '\r' && next === '\n')) && !inQ) {
+      if (c === '\r') i++;
+      cols.push(cur); cur = "";
+      rows.push(cols); cols = [];
+    } else {
+      cur += c;
+    }
   }
-  result.push(cur);
-  return result;
+  cols.push(cur);
+  if (cols.some(c => c.trim())) rows.push(cols);
+  return rows;
 }
 
 async function loadPrompts() {
