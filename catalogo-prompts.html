@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Prompts</title>
+<style>
+  :root {
+    --primary: #0F6E56;
+    --primary-light: #E1F5EE;
+    --primary-mid: #1D9E75;
+    --accent: #185FA5;
+    --accent-light: #E6F1FB;
+    --text: #1a1a1a;
+    --text-muted: #5F5E5A;
+    --border: rgba(0,0,0,0.10);
+    --surface: #ffffff;
+    --surface-alt: #f7f8f6;
+    --tag-bg: #E1F5EE;
+    --tag-text: #0F6E56;
+    --danger: #A32D2D;
+    --danger-light: #FCEBEB;
+    --radius: 10px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--surface-alt);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--primary);
+    color: #fff;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  header h1 { font-size: 1.4rem; font-weight: 600; letter-spacing: -0.3px; }
+  header p { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; }
+
+  .btn-primary {
+    background: #fff;
+    color: var(--primary);
+    border: none;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+
+  .toolbar {
+    padding: 1.2rem 2rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search-wrap {
+    flex: 1;
+    min-width: 220px;
+    position: relative;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 0.55rem 0.75rem 0.55rem 2.2rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    background: var(--surface-alt);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-wrap input:focus { border-color: var(--primary-mid); }
+
+  select {
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    background: var(--surface-alt);
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+  }
+  select:focus { border-color: var(--primary-mid); }
+
+  .counter {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.1rem;
+    padding: 1.5rem 2rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.11); transform: translateY(-1px); }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .card-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .card-desc {
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .card-prompt {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary-mid);
+    border-radius: 6px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.82rem;
+    color: #333;
+    line-height: 1.55;
+    max-height: 120px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+  }
+
+  .card-author {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .card-actions { display: flex; gap: 0.4rem; }
+
+  .btn-copy, .btn-delete, .btn-edit {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.78rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.12s, color 0.12s;
+    font-weight: 500;
+  }
+  .btn-copy { background: var(--accent-light); color: var(--accent); border-color: #b5d4f4; }
+  .btn-copy:hover { background: #d0e7f9; }
+  .btn-edit { background: var(--primary-light); color: var(--primary); border-color: #9fe1cb; }
+  .btn-edit:hover { background: #c0eedd; }
+  .btn-delete { background: var(--danger-light); color: var(--danger); border-color: #f7c1c1; }
+  .btn-delete:hover { background: #f9d5d5; }
+
+  .copied-msg {
+    font-size: 0.75rem;
+    color: var(--primary);
+    font-weight: 600;
+    display: none;
+  }
+
+  .empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  /* Modal */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 1.8rem;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .modal h2 { font-size: 1.15rem; font-weight: 600; }
+
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: 0.83rem; font-weight: 600; color: var(--text-muted); }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--surface-alt);
+    outline: none;
+    transition: border-color 0.15s;
+    resize: vertical;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--primary-mid); }
+
+  .modal-footer { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 0.4rem; }
+
+  .btn-cancel {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: background 0.12s;
+  }
+  .btn-cancel:hover { background: var(--surface-alt); }
+
+  .btn-save {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.55rem 1.3rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn-save:hover { opacity: 0.88; }
+
+  .error-msg {
+    font-size: 0.8rem;
+    color: var(--danger);
+    display: none;
+    margin-top: 2px;
+  }
+
+  #loading-bar {
+    display: none;
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    grid-column: 1/-1;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 1rem; }
+    .toolbar { padding: 0.8rem 1rem; }
+    .grid { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>📚 Catálogo de Prompts</h1>
+    <p>Repositório compartilhado do time — copie, use e contribua</p>
+  </div>
+  <button class="btn-primary" onclick="openModal()">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Novo Prompt
+  </button>
+</header>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="search" placeholder="Buscar por título, descrição ou prompt..." oninput="renderCards()">
+  </div>
+  <select id="filter-cat" onchange="renderCards()">
+    <option value="">Todas as categorias</option>
+  </select>
+  <select id="filter-author" onchange="renderCards()">
+    <option value="">Todos os autores</option>
+  </select>
+  <span class="counter" id="counter"></span>
+</div>
+
+<div class="grid" id="grid">
+  <div id="loading-bar" style="display:block">Carregando prompts...</div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h2 id="modal-title">Adicionar novo prompt</h2>
+    <input type="hidden" id="edit-id">
+
+    <div class="form-group">
+      <label>Título do Prompt *</label>
+      <input type="text" id="f-title" placeholder="Ex: Resumo executivo de reunião">
+      <span class="error-msg" id="err-title">Campo obrigatório</span>
+    </div>
+
+    <div class="form-group">
+      <label>Categoria *</label>
+      <select id="f-cat">
+        <option value="">Selecione...</option>
+        <option>Vendas</option>
+        <option>Customer Success</option>
+        <option>Marketing</option>
+        <option>Operações</option>
+        <option>Produtividade</option>
+        <option>Comunicação</option>
+        <option>Análise de Dados</option>
+        <option>Outro</option>
+      </select>
+      <span class="error-msg" id="err-cat">Campo obrigatório</span>
+    </div>
+
+    <div class="form-group">
+      <label>O que esse prompt faz? *</label>
+      <input type="text" id="f-desc" placeholder="Ex: Gera um resumo executivo com próximos passos e decisões tomadas">
+      <span class="error-msg" id="err-desc">Campo obrigatório</span>
+    </div>
+
+    <div class="form-group">
+      <label>Prompt completo *</label>
+      <textarea id="f-prompt" rows="6" placeholder="Cole aqui o prompt que deve ser usado..."></textarea>
+      <span class="error-msg" id="err-prompt">Campo obrigatório</span>
+    </div>
+
+    <div class="form-group">
+      <label>Seu nome *</label>
+      <input type="text" id="f-author" placeholder="Ex: Guilherme">
+      <span class="error-msg" id="err-author">Campo obrigatório</span>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="savePrompt()">Salvar Prompt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURAÇÃO DO SHAREPOINT
+// ============================================================
+// Para conectar ao SharePoint List, preencha as 3 variáveis abaixo:
+// 1. SP_SITE_URL: URL do seu site SharePoint (sem barra no final)
+//    Ex: "https://suaempresa.sharepoint.com/sites/NomeSite"
+// 2. SP_LIST_NAME: Nome exato da lista que você criar no SharePoint
+//    Ex: "CatalogodePrompts"
+// 3. USE_SHAREPOINT: mude para true quando conectar ao SharePoint
+//    Enquanto for false, usa dados locais (demo)
+
+const SP_SITE_URL = "https://lggo.sharepoint.com/sites/sdc";
+const SP_LIST_NAME = "CatalogodePrompts";
+const USE_SHAREPOINT = true;
+
+// ============================================================
+// DADOS DE DEMONSTRAÇÃO (usados quando USE_SHAREPOINT = false)
+// ============================================================
+let localPrompts = [
+  {
+    id: 1,
+    title: "Resumo de reunião com próximos passos",
+    category: "Produtividade",
+    description: "Transforma anotações brutas de reunião em resumo estruturado com decisões e ações",
+    prompt: "Com base nas anotações abaixo, crie um resumo executivo no seguinte formato:\n\n**Resumo:** (2-3 linhas)\n**Decisões tomadas:** (lista)\n**Próximos passos:** (lista com responsável e prazo)\n**Pendências em aberto:** (lista)\n\nAnotações:\n[COLE AS ANOTAÇÕES AQUI]",
+    author: "Guilherme",
+    date: "2025-05-01"
+  },
+  {
+    id: 2,
+    title: "E-mail de follow-up após proposta",
+    category: "Vendas",
+    description: "Gera e-mail de follow-up consultivo após envio de proposta comercial",
+    prompt: "Escreva um e-mail de follow-up para um cliente que recebeu nossa proposta há [X dias]. O tom deve ser consultivo, sem pressão. Inclua:\n- Reforço do principal benefício para o cliente\n- Abertura para dúvidas\n- CTA claro mas não agressivo\n\nContexto do cliente: [DESCREVA O CONTEXTO]",
+    author: "Ana Paula",
+    date: "2025-05-02"
+  },
+  {
+    id: 3,
+    title: "Análise de risco de churn",
+    category: "Customer Success",
+    description: "Avalia sinais de risco de cancelamento e sugere ações preventivas",
+    prompt: "Analise os dados do cliente abaixo e identifique os principais sinais de risco de churn. Para cada sinal, sugira uma ação preventiva específica e quem deve executar.\n\nDados do cliente:\n- Última interação: [DATA]\n- NPS: [NOTA]\n- Uso do produto: [DESCREVER]\n- Situação financeira: [DESCREVER]\n- Pendências: [LISTAR]",
+    author: "Carlos",
+    date: "2025-05-03"
+  },
+  {
+    id: 4,
+    title: "Post LinkedIn para compartilhar resultado",
+    category: "Marketing",
+    description: "Cria post profissional no LinkedIn para divulgar um caso de sucesso ou resultado",
+    prompt: "Crie um post para o LinkedIn divulgando o seguinte resultado/caso de sucesso. O tom deve ser profissional mas humano, sem ser autopromocional. Use uma estrutura de: gancho forte na primeira linha, contexto, resultado com número, aprendizado ou insight, chamada para engajamento.\n\nResultado/caso: [DESCREVA AQUI]\nPúblico-alvo do post: [EX: gestores de CS, CEOs de PMEs]",
+    author: "Guilherme",
+    date: "2025-05-04"
+  }
+];
+
+let nextId = 5;
+
+// ============================================================
+// FUNÇÕES DE API SHAREPOINT
+// ============================================================
+
+async function getDigest() {
+  const resp = await fetch(`${SP_SITE_URL}/_api/contextinfo`, {
+    method: "POST",
+    headers: { "Accept": "application/json;odata=verbose" },
+    credentials: "include"
+  });
+  const data = await resp.json();
+  return data.d.GetContextWebInformation.FormDigestValue;
+}
+
+async function spGetAll() {
+  const url = `${SP_SITE_URL}/_api/web/lists/getbytitle('${SP_LIST_NAME}')/items?$select=Id,Title,Categoria,Descricao,PromptTexto,Autor,Created&$orderby=Created desc&$top=500`;
+  const resp = await fetch(url, {
+    headers: { "Accept": "application/json;odata=verbose" },
+    credentials: "include"
+  });
+  const data = await resp.json();
+  return data.d.results.map(i => ({
+    id: i.Id,
+    title: i.Title,
+    category: i.Categoria,
+    description: i.Descricao,
+    prompt: i.PromptTexto,
+    author: i.Autor,
+    date: i.Created ? i.Created.substring(0, 10) : ""
+  }));
+}
+
+async function spCreate(item) {
+  const digest = await getDigest();
+  const body = JSON.stringify({
+    __metadata: { type: `SP.Data.${SP_LIST_NAME}ListItem` },
+    Title: item.title,
+    Categoria: item.category,
+    Descricao: item.description,
+    PromptTexto: item.prompt,
+    Autor: item.author
+  });
+  const resp = await fetch(`${SP_SITE_URL}/_api/web/lists/getbytitle('${SP_LIST_NAME}')/items`, {
+    method: "POST",
+    headers: {
+      "Accept": "application/json;odata=verbose",
+      "Content-Type": "application/json;odata=verbose",
+      "X-RequestDigest": digest
+    },
+    credentials: "include",
+    body
+  });
+  const data = await resp.json();
+  return data.d.Id;
+}
+
+async function spUpdate(id, item) {
+  const digest = await getDigest();
+  const body = JSON.stringify({
+    __metadata: { type: `SP.Data.${SP_LIST_NAME}ListItem` },
+    Title: item.title,
+    Categoria: item.category,
+    Descricao: item.description,
+    PromptTexto: item.prompt,
+    Autor: item.author
+  });
+  await fetch(`${SP_SITE_URL}/_api/web/lists/getbytitle('${SP_LIST_NAME}')/items(${id})`, {
+    method: "POST",
+    headers: {
+      "Accept": "application/json;odata=verbose",
+      "Content-Type": "application/json;odata=verbose",
+      "X-RequestDigest": digest,
+      "IF-MATCH": "*",
+      "X-HTTP-Method": "MERGE"
+    },
+    credentials: "include",
+    body
+  });
+}
+
+async function spDelete(id) {
+  const digest = await getDigest();
+  await fetch(`${SP_SITE_URL}/_api/web/lists/getbytitle('${SP_LIST_NAME}')/items(${id})`, {
+    method: "POST",
+    headers: {
+      "Accept": "application/json;odata=verbose",
+      "X-RequestDigest": digest,
+      "IF-MATCH": "*",
+      "X-HTTP-Method": "DELETE"
+    },
+    credentials: "include"
+  });
+}
+
+// ============================================================
+// LÓGICA PRINCIPAL
+// ============================================================
+
+let prompts = [];
+
+async function loadPrompts() {
+  if (USE_SHAREPOINT) {
+    try {
+      prompts = await spGetAll();
+    } catch(e) {
+      console.error("Erro ao carregar do SharePoint:", e);
+      alert("Erro ao conectar ao SharePoint. Verifique a configuração e as permissões.");
+      prompts = [];
+    }
+  } else {
+    prompts = [...localPrompts];
+  }
+  updateFilters();
+  renderCards();
+}
+
+function updateFilters() {
+  const cats = [...new Set(prompts.map(p => p.category).filter(Boolean))].sort();
+  const authors = [...new Set(prompts.map(p => p.author).filter(Boolean))].sort();
+
+  const fc = document.getElementById("filter-cat");
+  const fa = document.getElementById("filter-author");
+  const selCat = fc.value;
+  const selAuth = fa.value;
+
+  fc.innerHTML = '<option value="">Todas as categorias</option>' + cats.map(c => `<option ${c===selCat?'selected':''}>${c}</option>`).join('');
+  fa.innerHTML = '<option value="">Todos os autores</option>' + authors.map(a => `<option ${a===selAuth?'selected':''}>${a}</option>`).join('');
+}
+
+function renderCards() {
+  const q = document.getElementById("search").value.toLowerCase();
+  const cat = document.getElementById("filter-cat").value;
+  const author = document.getElementById("filter-author").value;
+
+  let filtered = prompts.filter(p => {
+    const matchQ = !q || [p.title, p.description, p.prompt, p.author, p.category].some(f => f && f.toLowerCase().includes(q));
+    const matchCat = !cat || p.category === cat;
+    const matchAuth = !author || p.author === author;
+    return matchQ && matchCat && matchAuth;
+  });
+
+  document.getElementById("counter").textContent = `${filtered.length} prompt${filtered.length !== 1 ? 's' : ''} encontrado${filtered.length !== 1 ? 's' : ''}`;
+
+  const grid = document.getElementById("grid");
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty">Nenhum prompt encontrado. Tente outra busca ou <strong>adicione o primeiro!</strong></div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(p => `
+    <div class="card" id="card-${p.id}">
+      <div class="card-header">
+        <div class="card-title">${escHtml(p.title)}</div>
+        <span class="tag">${escHtml(p.category)}</span>
+      </div>
+      <div class="card-desc">${escHtml(p.description)}</div>
+      <div class="card-prompt">${escHtml(p.prompt)}</div>
+      <div class="card-footer">
+        <span class="card-author">por ${escHtml(p.author)} · ${p.date || ''}</span>
+        <div class="card-actions">
+          <button class="btn-copy" onclick="copyPrompt(${p.id}, this)">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copiar
+          </button>
+          <button class="btn-edit" onclick="openEdit(${p.id})">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar
+          </button>
+          <button class="btn-delete" onclick="deletePrompt(${p.id})">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function copyPrompt(id, btn) {
+  const p = prompts.find(x => x.id === id);
+  if (!p) return;
+  navigator.clipboard.writeText(p.prompt).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copiado!';
+    btn.style.background = '#d1fae5';
+    btn.style.color = '#065f46';
+    setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 1800);
+  });
+}
+
+function openModal(editData) {
+  document.getElementById("modal-title").textContent = editData ? "Editar prompt" : "Adicionar novo prompt";
+  document.getElementById("edit-id").value = editData ? editData.id : "";
+  document.getElementById("f-title").value = editData ? editData.title : "";
+  document.getElementById("f-cat").value = editData ? editData.category : "";
+  document.getElementById("f-desc").value = editData ? editData.description : "";
+  document.getElementById("f-prompt").value = editData ? editData.prompt : "";
+  document.getElementById("f-author").value = editData ? editData.author : "";
+  ["title","cat","desc","prompt","author"].forEach(f => document.getElementById(`err-${f}`).style.display = "none");
+  document.getElementById("overlay").classList.add("open");
+}
+
+function openEdit(id) {
+  const p = prompts.find(x => x.id === id);
+  if (p) openModal(p);
+}
+
+function closeModal() {
+  document.getElementById("overlay").classList.remove("open");
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById("overlay")) closeModal();
+}
+
+async function savePrompt() {
+  const fields = [
+    { id: "f-title", err: "err-title", key: "title" },
+    { id: "f-cat", err: "err-cat", key: "category" },
+    { id: "f-desc", err: "err-desc", key: "description" },
+    { id: "f-prompt", err: "err-prompt", key: "prompt" },
+    { id: "f-author", err: "err-author", key: "author" }
+  ];
+
+  let valid = true;
+  const item = {};
+  fields.forEach(f => {
+    const val = document.getElementById(f.id).value.trim();
+    const errEl = document.getElementById(f.err);
+    if (!val) { errEl.style.display = "block"; valid = false; }
+    else { errEl.style.display = "none"; item[f.key] = val; }
+  });
+  if (!valid) return;
+
+  const editId = document.getElementById("edit-id").value;
+  item.date = new Date().toISOString().substring(0, 10);
+
+  if (USE_SHAREPOINT) {
+    try {
+      if (editId) {
+        await spUpdate(Number(editId), item);
+        const idx = prompts.findIndex(p => p.id === Number(editId));
+        if (idx !== -1) prompts[idx] = { ...prompts[idx], ...item };
+      } else {
+        const newId = await spCreate(item);
+        item.id = newId;
+        prompts.unshift(item);
+      }
+    } catch(e) {
+      alert("Erro ao salvar no SharePoint: " + e.message);
+      return;
+    }
+  } else {
+    if (editId) {
+      const idx = prompts.findIndex(p => p.id === Number(editId));
+      if (idx !== -1) prompts[idx] = { ...prompts[idx], ...item };
+    } else {
+      item.id = nextId++;
+      prompts.unshift(item);
+      localPrompts = prompts;
+    }
+  }
+
+  closeModal();
+  updateFilters();
+  renderCards();
+}
+
+async function deletePrompt(id) {
+  if (!confirm("Tem certeza que deseja remover este prompt?")) return;
+  if (USE_SHAREPOINT) {
+    try { await spDelete(id); }
+    catch(e) { alert("Erro ao remover: " + e.message); return; }
+  }
+  prompts = prompts.filter(p => p.id !== id);
+  if (!USE_SHAREPOINT) localPrompts = prompts;
+  updateFilters();
+  renderCards();
+}
+
+function escHtml(str) {
+  return (str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+loadPrompts();
+</script>
+</body>
+</html>
