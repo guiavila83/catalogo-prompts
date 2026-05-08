@@ -394,7 +394,7 @@ function parseCSV(text) {
   const rows = splitCSVRows(text.trim());
   if (rows.length < 2) return [];
   return rows.slice(1).map((cols, idx) => ({
-    id: idx,
+    uid:         (cols[6] || "").trim() || ("row_" + idx),
     title:       (cols[0] || "").trim(),
     category:    (cols[1] || "").trim(),
     description: (cols[2] || "").trim(),
@@ -488,11 +488,11 @@ function renderCards() {
       <div class="card-footer">
         <span class="card-author">por ${escHtml(p.author)} · ${escHtml(p.date)}</span>
         <div class="card-actions">
-          <button class="btn-copy" onclick="copyPrompt(${p.id}, this)">
+          <button class="btn-copy" onclick="copyPrompt('${escHtml(p.uid)}', this)">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
             Copiar
           </button>
-          <button class="btn-delete" onclick="deletePrompt(${p.id})">
+          <button class="btn-delete" onclick="deletePrompt('${escHtml(p.uid)}')">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
             Excluir
           </button>
@@ -503,7 +503,7 @@ function renderCards() {
 }
 
 function copyPrompt(id, btn) {
-  const p = prompts.find(x => x.id === id);
+  const p = prompts.find(x => x.uid === id);
   if (!p) return;
   navigator.clipboard.writeText(p.prompt).then(() => {
     const orig = btn.innerHTML;
@@ -570,7 +570,7 @@ async function savePrompt() {
 }
 
 async function deletePrompt(id) {
-  const p = prompts.find(x => x.id === id);
+  const p = prompts.find(x => x.uid === id);
   if (!p) return;
   if (!confirm(`Remover o prompt "${p.title}"?`)) return;
 
@@ -580,7 +580,7 @@ async function deletePrompt(id) {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "delete", titulo: p.title, autor: p.author, data: p.date })
+      body: JSON.stringify({ action: "delete", id: p.uid })
     });
     showStatus("Prompt removido! Atualizando lista...", "loading");
     setTimeout(() => loadPrompts(), 1500);
